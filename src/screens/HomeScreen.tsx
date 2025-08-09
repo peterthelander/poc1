@@ -22,6 +22,8 @@ export default function HomeScreen({ navigation }: Props) {
   const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
+  const scrollToBottom = () =>
+    scrollViewRef.current?.scrollToEnd({ animated: true });
 
   const handleAsk = async () => {
     if (!prompt.trim()) return;
@@ -29,22 +31,25 @@ export default function HomeScreen({ navigation }: Props) {
     setHistory((prev) => [...prev, { question: prompt, answer: result }]);
     setPrompt('');
     Keyboard.dismiss();
+    scrollToBottom();
   };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={64}
     >
       <View style={styles.container}>
         <ScrollView
           ref={scrollViewRef}
           style={styles.history}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
+          contentContainerStyle={{
+            padding: 16,
+            paddingBottom: insets.bottom + 96,
+          }}
+          onContentSizeChange={scrollToBottom}
         >
           {history.map((item, index) => (
             <View key={index} style={styles.entry}>
@@ -54,19 +59,28 @@ export default function HomeScreen({ navigation }: Props) {
           ))}
         </ScrollView>
         <Button title="Go to Help" onPress={() => navigation.navigate('Help')} />
-        <View style={{ padding: 16 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            paddingHorizontal: 16,
+            paddingTop: 8,
+          }}
+        >
           <TextInput
-            style={styles.input}
+            style={[styles.input, { flex: 1 }]}
             value={prompt}
             onChangeText={setPrompt}
             placeholder="Type a prompt"
             returnKeyType="send"
             blurOnSubmit={false}
             onSubmitEditing={handleAsk}
+            onFocus={scrollToBottom}
           />
           <Button title="Ask" onPress={handleAsk} />
         </View>
-        <View style={{ height: insets.bottom + 16 }} />
+        <View style={{ height: insets.bottom + 8 }} />
       </View>
     </KeyboardAvoidingView>
   );
