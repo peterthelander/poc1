@@ -21,17 +21,41 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export default function HomeScreen({ navigation }: Props) {
   const [prompt, setPrompt] = useState('');
   const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState('');
+  const [currentAnswer, setCurrentAnswer] = useState('');
+  const [controller, setController] = useState<AbortController | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   const scrollToBottom = () => scrollViewRef.current?.scrollToEnd({ animated: true });
 
   const handleAsk = async () => {
     if (!prompt.trim()) return;
-    const result = await getLLM().chat(prompt);
-    setHistory((prev) => [...prev, { question: prompt, answer: result }]);
+    const question = prompt;
     setPrompt('');
     Keyboard.dismiss();
+    const abortController = new AbortController();
+    setController(abortController);
+    setCurrentQuestion(question);
+    setCurrentAnswer('');
     scrollToBottom();
+    let answer = '';
+    try {
+      for await (const token of getLLM().chat(question, { signal: abortController.signal })) {
+        answer += token;
+        setCurrentAnswer(answer);
+        scrollToBottom();
+      }
+    } finally {
+      setHistory((prev) => [...prev, { question, answer }]);
+      setCurrentQuestion('');
+      setCurrentAnswer('');
+      setController(null);
+      scrollToBottom();
+    }
+  };
+
+  const handleStop = () => {
+    controller?.abort();
   };
 
   return (
@@ -57,6 +81,12 @@ export default function HomeScreen({ navigation }: Props) {
               <ThemedText style={styles.answer}>{item.answer}</ThemedText>
             </View>
           ))}
+          {currentQuestion ? (
+            <View key="stream" style={styles.entry}>
+              <ThemedText style={styles.question}>{currentQuestion}</ThemedText>
+              <ThemedText style={styles.answer}>{currentAnswer}</ThemedText>
+            </View>
+          ) : null}
         </ScrollView>
         <Button title="Go to Help" onPress={() => navigation.navigate('Help')} />
         <View
@@ -77,8 +107,12 @@ export default function HomeScreen({ navigation }: Props) {
             blurOnSubmit={false}
             onSubmitEditing={handleAsk}
             onFocus={scrollToBottom}
+            editable={!controller}
           />
-          <Button title="Ask" onPress={handleAsk} />
+          <Button
+            title={controller ? 'Stop' : 'Ask'}
+            onPress={controller ? handleStop : handleAsk}
+          />
         </View>
         <View style={{ height: insets.bottom + 8 }} />
       </View>

@@ -5,7 +5,7 @@ import React from 'react';
 import HomeScreen from '../HomeScreen';
 
 describe('HomeScreen', () => {
-  it('renders title', () => {
+  it('renders Ask button', () => {
     const navigation: any = { navigate: jest.fn() };
     const route: any = { key: 'Home', name: 'Home' };
     const { getByText } = render(
@@ -13,6 +13,6 @@ describe('HomeScreen', () => {
         <HomeScreen navigation={navigation} route={route} />
       </NavigationContainer>,
     );
-    expect(getByText('Home Screen')).toBeTruthy();
+    expect(getByText('Ask')).toBeTruthy();
   });
 });
