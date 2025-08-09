@@ -8,27 +8,27 @@ import reactNative from 'eslint-plugin-react-native';
 import unusedImports from 'eslint-plugin-unused-imports';
 import ts from 'typescript-eslint';
 
-const compat = new FlatCompat({
-  // base dir for resolving legacy "extends"
-  baseDirectory: process.cwd(),
-});
+const compat = new FlatCompat({ baseDirectory: process.cwd() });
+const SRC_FILES = ['src/**/*.{ts,tsx,js,jsx}', 'App.tsx'];
 
 export default [
-  { ignores: ['node_modules/', 'dist/', 'build/', 'coverage/', '.expo/'] },
-
-  // Flat-ready configs
-  js.configs.recommended,
-  ...ts.configs.recommended,
-
-  // Legacy shareable configs, loaded via compat
-  ...compat.extends(
-    'plugin:react-native/all',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-  ),
-
-  // Your project rules/plugins (flat format)
+  // Global ignore (applies to everything below)
   {
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', '.expo/**'],
+  },
+
+  // Scope flat-ready configs
+  { ...js.configs.recommended, files: SRC_FILES },
+  ...ts.configs.recommended.map((c) => ({ ...c, files: SRC_FILES })),
+
+  // Scope legacy shareable configs from compat
+  ...compat
+    .extends('plugin:react-native/all', 'plugin:import/recommended', 'plugin:import/typescript')
+    .map((c) => ({ ...c, files: SRC_FILES })),
+
+  // Your project rules/plugins (also scoped)
+  {
+    files: SRC_FILES,
     plugins: {
       react,
       'react-hooks': reactHooks,
@@ -41,16 +41,10 @@ export default [
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react-native/no-inline-styles': 'off',
+      'unused-imports/no-unused-imports': 'error',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'import/order': ['warn', { 'newlines-between': 'always', alphabetize: { order: 'asc' } }],
       'prettier/prettier': ['warn'],
-      // remove unused imports & relax unused vars (allow _var)
-      'unused-imports/no-unused-imports': 'error',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-      // keep imports tidy (auto-fixable)
-      'import/order': ['warn', { 'newlines-between': 'always', alphabetize: { order: 'asc' } }],
     },
   },
 ];
