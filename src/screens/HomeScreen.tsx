@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { StyleSheet, View, Button, TextInput, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { getLLM } from '../services/llm/MockLLMService';
@@ -9,16 +9,25 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const [prompt, setPrompt] = useState('');
-  const [answer, setAnswer] = useState('');
+  const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
 
   const handleAsk = async () => {
+    if (!prompt.trim()) return;
     const result = await getLLM().chat(prompt);
-    setAnswer(result);
+    setHistory((prev) => [...prev, { question: prompt, answer: result }]);
+    setPrompt('');
   };
 
   return (
     <View style={styles.container}>
-      <ThemedText>Home Screen</ThemedText>
+      <ScrollView style={styles.history} contentContainerStyle={styles.historyContent}>
+        {history.map((item, index) => (
+          <View key={index} style={styles.entry}>
+            <ThemedText style={styles.question}>{item.question}</ThemedText>
+            <ThemedText style={styles.answer}>{item.answer}</ThemedText>
+          </View>
+        ))}
+      </ScrollView>
       <TextInput
         style={styles.input}
         value={prompt}
@@ -26,7 +35,6 @@ export default function HomeScreen({ navigation }: Props) {
         placeholder="Type a prompt"
       />
       <Button title="Ask" onPress={handleAsk} />
-      {answer ? <Text style={styles.response}>{answer}</Text> : null}
       <Button title="Go to Help" onPress={() => navigation.navigate('Help')} />
     </View>
   );
@@ -35,18 +43,29 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+  },
+  history: {
+    flex: 1,
+    marginBottom: 10,
+  },
+  historyContent: {
+    paddingBottom: 10,
+  },
+  entry: {
+    marginBottom: 10,
+  },
+  question: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  answer: {
+    fontSize: 16,
   },
   input: {
-    width: '80%',
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 8,
-    marginVertical: 10,
-  },
-  response: {
-    marginVertical: 10,
-    textAlign: 'center',
+    marginBottom: 10,
   },
 });
