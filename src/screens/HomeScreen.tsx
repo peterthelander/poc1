@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { getLLM } from '../services/llm/MockLLMService';
+import ThemedText from '../components/ThemedText';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -17,7 +18,7 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Home Screen</Text>
+      <ThemedText>Home Screen</ThemedText>
       <TextInput
         style={styles.input}
         value={prompt}
@@ -36,9 +37,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
   },
   input: {
     width: '80%',

@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import ThemedText from '../components/ThemedText';
 
 export default function HelpScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Help Screen</Text>
+      <ThemedText>Help Screen</ThemedText>
     </View>
   );
 }
@@ -13,8 +14,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
   },
 });
