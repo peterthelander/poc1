@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+
 import ThemedText from '../components/ThemedText';
 
 export default function HelpScreen() {
@@ -11,8 +12,8 @@ export default function HelpScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
 });

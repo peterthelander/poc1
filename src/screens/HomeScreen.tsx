@@ -1,3 +1,4 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useRef, useState } from 'react';
 import {
   StyleSheet,
@@ -10,10 +11,10 @@ import {
   Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import ThemedText from '../components/ThemedText';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { getLLM } from '../services/llm/MockLLMService';
-import ThemedText from '../components/ThemedText';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -22,8 +23,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
-  const scrollToBottom = () =>
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+  const scrollToBottom = () => scrollViewRef.current?.scrollToEnd({ animated: true });
 
   const handleAsk = async () => {
     if (!prompt.trim()) return;
@@ -87,25 +87,25 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  answer: {
+    fontSize: 16,
   },
-  history: {
+  container: {
     flex: 1,
   },
   entry: {
     marginBottom: 10,
   },
-  question: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  answer: {
-    fontSize: 16,
+  history: {
+    flex: 1,
   },
   input: {
-    borderWidth: 1,
     borderColor: '#ccc',
+    borderWidth: 1,
     padding: 8,
+  },
+  question: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

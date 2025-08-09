@@ -1,5 +1,5 @@
-import { Text, StyleSheet, TextProps } from 'react-native';
 import { ReactNode } from 'react';
+import { Text, StyleSheet, TextProps } from 'react-native';
 
 export type ThemedTextProps = TextProps & {
   children: ReactNode;
@@ -15,8 +15,7 @@ export default function ThemedText({ style, children, ...rest }: ThemedTextProps
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: 24,
     color: '#000',
+    fontSize: 24,
   },
 });
-
