@@ -1,3 +1,7 @@
+import { USE_ON_DEVICE } from '../../config/flags';
+import { OnDeviceLLMService } from './OnDeviceLLMService';
+import type { ModelManifest } from './ModelManager';
+
 export interface LLMService {
   chat(
     prompt: string,
@@ -32,9 +36,17 @@ export class MockLLMService implements LLMService {
 
 let instance: LLMService | null = null;
 
+const DEFAULT_MANIFEST: ModelManifest = {
+  id: 'default-model',
+  url: 'https://example.com/model.bin',
+  sha256: '0'.repeat(64),
+};
+
 export function getLLM(): LLMService {
   if (!instance) {
-    instance = new MockLLMService();
+    instance = USE_ON_DEVICE
+      ? new OnDeviceLLMService(DEFAULT_MANIFEST)
+      : new MockLLMService();
   }
   return instance;
 }
