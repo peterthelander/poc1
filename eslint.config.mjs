@@ -14,6 +14,8 @@ const compat = new FlatCompat({
 });
 
 export default [
+  { ignores: ['node_modules/', 'dist/', 'build/', 'coverage/', '.expo/'] },
+
   // Flat-ready configs
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -50,6 +52,5 @@ export default [
       // keep imports tidy (auto-fixable)
       'import/order': ['warn', { 'newlines-between': 'always', alphabetize: { order: 'asc' } }],
     },
-    ignores: ['node_modules/', 'dist/', 'build/'],
   },
 ];
